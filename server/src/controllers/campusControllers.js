@@ -11,10 +11,8 @@ export async function listCampuses(req, res, next) {
 export async function getCampusBySlug(req, res, next) {
   try {
     const slug = req.params.slug;
-    console.log(slug);
     const campus = await campusModel.findOne({slug}).lean();
     if (!campus) res.status(404).json({error: 'campus not found'});
-    console.log('Campus Fetched');
     res.json(campus);
   } catch (error) {
     next(error);

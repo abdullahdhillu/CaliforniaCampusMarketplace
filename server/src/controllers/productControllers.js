@@ -11,6 +11,12 @@ export async function getProducts(req, res, next) {
   const campus = await campusModel.findOne({slug});
   if (!campus) return next(createHttpError(404, 'campus not found'));
   const filter = {campusID: campus._id, status: 'Active'};
+  if (q) {
+    filter.$text = {$search: q};
+    const items =
+        await productModel.find(filter).sort({score: {$meta: 'textScore'}});
+    res.json({products: items.length, items})
+  }
   if (category) filter.category = category;
   if (min || max) {
     filter.price = {};

@@ -31,6 +31,6 @@ const productSchema = mongoose.Schema({
   }
 })
 productSchema.index({campusID: 1, active: 1, createdAt: -1});
-productSchema.index({title: 'text', description: 'text'})
+productSchema.index({name: 'text', description: 'text'})
 
 export const productModel = mongoose.model('Product', productSchema)

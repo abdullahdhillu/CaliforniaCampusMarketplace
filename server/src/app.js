@@ -5,6 +5,7 @@ import morgan from 'morgan';
 
 import {campus} from './routes/campusRoutes.js';
 import {product} from './routes/productRoutes.js';
+import {user} from './routes/userRoutes.js';
 
 export function createApp() {
   const app = express();
@@ -12,6 +13,7 @@ export function createApp() {
   app.use(express.json());
   app.use(cors({origin: true}));
   app.use(morgan('dev'));
+  app.use('/api/user', user);
   app.use('/api/campus', campus);
   app.use('/api/campuses/:slug/products', product);
   app.use((req, res) => res.status(404).json({error: 'URL_NOT_FOUND'}))

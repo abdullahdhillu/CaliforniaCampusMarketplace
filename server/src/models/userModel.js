@@ -1,5 +1,11 @@
 import mongoose from 'mongoose';
 const userSchema = mongoose.Schema(
-    {name: String, age: {type: Number, min: 14}, email: String, avatar: String},
+    {
+      name: {type: String, required: true},
+      age: {type: Number, min: 12, required: true},
+      email: {type: String, required: true},
+      password: {type: String, required: true},
+      avatar: String
+    },
     {timestamps: true});
 export const userModel = mongoose.model('User', userSchema);
