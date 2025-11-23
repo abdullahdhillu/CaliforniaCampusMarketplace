@@ -3,6 +3,7 @@ import z from 'zod';
 
 import {campusModel} from '../models/CampusModel.js';
 import {productModel} from '../models/productModel.js';
+import {userModel} from '../models/userModel.js';
 
 
 export async function getProducts(req, res, next) {
@@ -36,6 +37,17 @@ export async function createProduct(req, res, next) {
   const {slug} = req.params;
   const campus = await campusModel.findOne({slug}).lean();
   if (!campus) return next(createHttpError(404, 'campus not found'));
-  const doc = await productModel.create({...req.body, campusID: campus._id});
+  const doc = await productModel.create(
+      {...req.body, campusID: campus._id, sellerID: req.user.userId});
   res.json({message: 'Product uploaded successfully', doc})
+}
+
+export async function deleteProduct(req, res, next) {
+  const {id} = req.params;
+  const product = await productModel.findById(id);
+  if (!product) return next(createHttpError(404, 'product not found'));
+  if (product.sellerID.toString() != req.user.userId ||)
+    return next(createHttpError(403, 'Not authorized - you are not the owner'));
+  await productModel.findByIdAndDelete(id);
+  res.json({message: 'Product deleted successfully', product})
 }

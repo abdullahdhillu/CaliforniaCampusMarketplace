@@ -10,9 +10,9 @@ const productSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     index: true,
-    // required: true
+    required: true
   },
-  name: {type: String, required: true},
+  title: {type: String, required: true},
   price: {type: Number, min: 0, required: true},
   description: {type: String},
   category: {type: String, index: true},
@@ -31,6 +31,6 @@ const productSchema = mongoose.Schema({
   }
 })
 productSchema.index({campusID: 1, active: 1, createdAt: -1});
-productSchema.index({name: 'text', description: 'text'})
+productSchema.index({title: 'text', description: 'text'})
 
 export const productModel = mongoose.model('Product', productSchema)

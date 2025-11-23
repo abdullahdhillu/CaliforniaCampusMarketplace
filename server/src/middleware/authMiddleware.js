@@ -3,13 +3,13 @@ import createHttpError from 'http-errors';
 import jwt from 'jsonwebtoken'
 
 import {env} from '../config/env.js'
+import {userModel} from '../models/userModel.js';
 
 const JWT_SECRET_KEY = env.JWT_SECRET_KEY;
 export async function generateToken(userId) {
   return jwt.sign({userId}, JWT_SECRET_KEY, {expiresIn: '7d'})
 }
 export async function authenticate(req, res, next) {
-  console.log('Headers received:', req.headers);
   const authHeader = req.headers['authorization'];
   if (!authHeader) {
     console.log('No Authorization header found');
@@ -36,4 +36,16 @@ export async function hashPassword(password) {
 
 export async function comparePassword(password, hashPassword) {
   return await bcrypt.compare(password, hashPassword);
+}
+
+export async function requireOwner(req, res, next) {
+  const {userId} = req.user;
+  console.log(userId);
+  const currentlyLoggedInUser =
+      await userModel.findOne({_id: userId.toString()});
+  console.log('current user:', currentlyLoggedInUser);
+  if (currentlyLoggedInUser.role != 'admin') {
+    return next(createHttpError(403, 'admin approval required'))
+  }
+  next();
 }

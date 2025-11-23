@@ -15,4 +15,4 @@ const userSchemaEnforcer = z.object({
 export const user = Router();
 
 user.post('/signup', zValidate(userSchemaEnforcer), signup);
-user.post('/login', authenticate, login);
+user.post('/login', login);
