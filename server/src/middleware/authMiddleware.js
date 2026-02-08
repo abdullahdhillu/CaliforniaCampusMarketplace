@@ -1,9 +1,9 @@
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcrypt';
 import createHttpError from 'http-errors';
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
-import {env} from '../config/env.js'
-import {userModel} from '../models/userModel.js';
+import { env } from '../config/env.js';
+import { userModel } from '../models/userModel.js';
 
 const JWT_SECRET_KEY = env.JWT_SECRET_KEY;
 export async function generateToken(userId) {
