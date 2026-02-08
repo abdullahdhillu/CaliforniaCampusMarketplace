@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({path: ""});
 
 export const env = {
   NODE_ENV: process.env.NODE_ENV ?? 'development',
@@ -11,5 +11,4 @@ export const env = {
 if (!env.MONGODB_URI) {
   console.warn('⚠️  Missing MONGODB_URI in .env');
 }
-
 if (!env.JWT_SECRET_KEY) console.log('No JWT_SECRET_KEY found');

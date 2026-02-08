@@ -25,7 +25,7 @@ export async function authenticate(req, res, next) {
       return next(
           createHttpError(403, 'Invalid or expired token, please try again'));
     }
-    req.user = user;
+    req.user = user; // Attaches user to the req body
     next();
   })
 }

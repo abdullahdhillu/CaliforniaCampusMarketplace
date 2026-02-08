@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
-import {env} from '../src/config/env.js';
-import {campusModel} from '../src/models/CampusModel.js';
+import { env } from '../src/config/env.js';
+import { campusModel } from '../src/models/CampusModel.js';
 
 const SEED = [
   {name: 'UCLA', slug: 'ucla', type: 'university', city: 'Los Angeles'},

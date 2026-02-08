@@ -1,9 +1,9 @@
-import {Router} from 'express';
+import { Router } from 'express';
 import z from 'zod';
 
-import {createProduct, deleteProduct, getProducts} from '../controllers/productControllers.js'
-import {authenticate, requireOwner} from '../middleware/authMiddleware.js';
-import {zValidate} from '../validators/zValidate.js';
+import { createProduct, deleteProduct, getAllProducts, getProduct } from '../controllers/productControllers.js';
+import { authenticate } from '../middleware/authMiddleware.js';
+import { zValidate } from '../validators/zValidate.js';
 
 export const product = Router({mergeParams: true});
 const productSchemaEnforcer = z.object({
@@ -17,7 +17,8 @@ const productSchemaEnforcer = z.object({
                  .default('good'),
   status: z.enum(['Active', 'Reserved', 'Sold', 'Removed']).default('Active')
 })
-product.get('/', getProducts);
+product.get('/:id', getProduct);
+product.get('/:id', getAllProducts);
 product.post(
     '/createProduct', zValidate(productSchemaEnforcer), authenticate,
     createProduct);
