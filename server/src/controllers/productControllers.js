@@ -9,7 +9,7 @@ export async function getProduct(req,res,next) {
   const campus = await campusModel.findOne({slug});
   if(!campus) return next(createHttpError(404, "no such campus found"));
   const filter = {campusID: campus._id, status: 'Active', _id: id};
-  const item = await productModel.find(filter);
+  const item = await productModel.findOne(filter);
   if(!item || item.length == 0) return next(createHttpError(404, "no such product found"));
   return res.json({product: item})
 }
@@ -29,7 +29,7 @@ export async function getAllProducts(req, res, next) {
   }
   const sort = q? {score : {$meta: 'textScore'}} : {createdAt: -1}
   const items = await productModel.find(filter)
-                    .sort({createdAt: -1})
+                    .sort(sort)
                     .skip((Number(page) - 1) * Number(limit))
                     .limit(Number(limit))
                     .lean();

@@ -1,11 +1,11 @@
-import cors from 'cors'
+import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
-import {campus} from './routes/campusRoutes.js';
-import {product} from './routes/productRoutes.js';
-import {user} from './routes/userRoutes.js';
+import { campus } from './routes/campusRoutes.js';
+import { product } from './routes/productRoutes.js';
+import { user } from './routes/userRoutes.js';
 
 export function createApp() {
   const app = express();

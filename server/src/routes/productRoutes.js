@@ -18,7 +18,7 @@ const productSchemaEnforcer = z.object({
   status: z.enum(['Active', 'Reserved', 'Sold', 'Removed']).default('Active')
 })
 product.get('/:id', getProduct);
-product.get('/:id', getAllProducts);
+product.get('/', getAllProducts);
 product.post(
     '/createProduct', zValidate(productSchemaEnforcer), authenticate,
     createProduct);
