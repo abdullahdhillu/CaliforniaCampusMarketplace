@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { listProducts } from "../lib/api";
 
 function cleanParams(obj) {
@@ -14,19 +14,20 @@ function cleanParams(obj) {
 }
 
 export default function BrowseProducts() {
+  const navigate = useNavigate();
   const { slug } = useParams();
-  const [sp, setSp] = useSearchParams();
+  const [searchParams, setsearchParams] = useSearchParams();
 
   // Read current URL params
-  const q = sp.get("q") || "";
-  const category = sp.get("category") || "";
-  const min = sp.get("min") || "";
-  const max = sp.get("max") || "";
-  const page = Number(sp.get("page") || 1);
+  const q = searchParams.get("q") || "";
+  const category = searchParams.get("category") || "";
+  const min = searchParams.get("min") || "";
+  const max = searchParams.get("max") || "";
+  const page = Number(searchParams.get("page") || 1);
   const limit = 20;
 
   // Build query input for API
-  const queryInput = useMemo(
+  const queryInput = useMemo( //useMemo protects me from irrelevent renders by only rendering when any of the dependencies change
     () => ({
       slug,
       q: q || undefined,
@@ -61,12 +62,24 @@ export default function BrowseProducts() {
 
     if (options.resetPage) merged.page = 1;
 
-    const cleaned = cleanParams(merged);
+    const cleaned = cleanParams(merged); // removes the properties that are either undefined, null or empty
     // URLSearchParams expects strings
     const asStrings = Object.fromEntries(
       Object.entries(cleaned).map(([k, v]) => [k, String(v)])
     );
-    setSp(asStrings);
+    setsearchParams(asStrings);
+  }
+
+  function onCampusChange(e) {
+    const nextSlug = e.target.value;
+    const merged = {
+      q, min, max, page : 1, category
+    }
+    const cleaned = cleanParams(merged); // URL Search Params will convert the stringed object to a real querys string like q=iPhone?min=50
+    const queryString = new URLSearchParams(Object.fromEntries( // Object.fromEntries will convert [["q" , "iPhone"], ["min", "50"]] to {q : "iPhone" , min : "50"}
+      Object.entries(cleaned).map(([k, v]) => [k, String(v)]) // Object.entries will make our cleaned object in strings for e.g {min: "50"}
+    )).toString(); // all converted to string "q=iPhone?min=50"    All this is to type safety, we can also just do const qs = new URLSearchParams(cleaned).toString();
+    navigate(`/campuses/${nextSlug}/products${queryString ? `?${queryString}` : ""}`);
   }
 
   function onSubmit(e) {
@@ -84,19 +97,19 @@ export default function BrowseProducts() {
   }
 
   function onClear() {
-    setSp({}); // clears all query params
+    setsearchParams({}); // clears all query params
   }
 
   if (error) {
     return (
       <div className="p-6">
         <div className="text-xl font-semibold">Error loading products</div>
-        <pre className="mt-3 rounded-lg border p-3 text-sm whitespace-pre-wrap">
+        <pre className="mt-3 rounded-lg border p-3 text-sm whitesearchParamsace-pre-wrap">
           {JSON.stringify(
             {
               message: error.message,
-              status: error?.response?.status,
-              data: error?.response?.data,
+              status: error?.researchParamsonse?.status,
+              data: error?.researchParamsonse?.data,
               url: error?.config?.baseURL + error?.config?.url,
             },
             null,
@@ -112,9 +125,16 @@ export default function BrowseProducts() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Browse Products</h1>
-          <p className="text-sm text-gray-600">
-            Campus: <span className="font-medium">{slug}</span>
+          <div className="flex gap-3">
+          <p className="text-m bold text-gray-600">
+            Campus:
           </p>
+          <select className="bg-inherit" id="slug" name="slug" onChange={(e) => onCampusChange(e)}>
+            <option value="stanford">Stanford</option>
+            <option value="ucsd">UCSD</option>
+            <option value="ucla">UCLA</option>
+          </select>
+          </div>
         </div>
 
         {isFetching && (
@@ -128,7 +148,7 @@ export default function BrowseProducts() {
         className="mt-6 rounded-xl border bg-white p-4"
       >
         <div className="grid gap-3 md:grid-cols-4">
-          <div className="md:col-span-2">
+          <div className="md:col-searchParamsan-2">
             <label className="block text-sm font-medium">Search</label>
             <input
               name="q"

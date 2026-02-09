@@ -14,7 +14,7 @@ export function createApp() {
   app.use(cors({origin: true}));
   app.use(morgan('dev'));
   app.use('/api/user', user);
-  app.use('/api/campus', campus);
+  app.use('/api/campuses', campus);
   app.use('/api/campuses/:slug/products', product);
   app.use((req, res) => res.status(404).json({error: 'URL_NOT_FOUND'}))
   app.use((err, req, res, next) => {

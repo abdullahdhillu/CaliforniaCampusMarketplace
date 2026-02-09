@@ -1,9 +1,7 @@
-import {Router} from 'express';
+import { Router } from 'express';
 
-import {getCampusBySlug, listCampuses} from '../controllers/campusControllers.js';
-import {campusModel} from '../models/CampusModel.js';
+import { getCampusBySlug, listCampuses } from '../controllers/campusControllers.js';
 
-import {product} from './productRoutes.js';
 
 export const campus = Router();
 campus.get('/', listCampuses);
