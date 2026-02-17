@@ -3,7 +3,6 @@ import z from 'zod';
 
 import { createProduct, deleteProduct, getAllProducts, getProduct } from '../controllers/productControllers.js';
 import { authenticate } from '../middleware/authMiddleware.js';
-import { zValidate } from '../validators/zValidate.js';
 
 export const product = Router({mergeParams: true});
 const productSchemaEnforcer = z.object({
@@ -17,9 +16,9 @@ const productSchemaEnforcer = z.object({
                  .default('good'),
   status: z.enum(['Active', 'Reserved', 'Sold', 'Removed']).default('Active')
 })
-product.get('/:id', getProduct);
 product.get('/', getAllProducts);
+product.get('/:id', getProduct);
 product.post(
-    '/createProduct', zValidate(productSchemaEnforcer), authenticate,
+    '/createProduct', authenticate,
     createProduct);
 product.delete('/deleteProduct/:id', authenticate, deleteProduct);

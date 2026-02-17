@@ -1,9 +1,10 @@
-import {campusModel} from '../models/CampusModel.js';
+import { campusModel } from '../models/CampusModel.js';
 export async function listCampuses(req, res, next) {
   try {
     const items = (await campusModel.find().sort({name: 1}).lean());
     res.json({items})
   } catch (error) {
+    console.log(error);
     next(error);
   }
 }

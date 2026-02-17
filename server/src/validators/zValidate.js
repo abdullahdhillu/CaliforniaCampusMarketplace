@@ -1,4 +1,4 @@
-import {ZodError} from 'zod';
+import { ZodError } from 'zod';
 
 export const zValidate = (schema, where = 'body') => (req, res, next) => {
   try {
@@ -6,6 +6,7 @@ export const zValidate = (schema, where = 'body') => (req, res, next) => {
     next();
   } catch (err) {
     if (err instanceof ZodError) {
+      console.log(err);
       return res.status(400).json(
           {error: 'validation_error', issues: err.issues});
     }

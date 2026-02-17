@@ -37,6 +37,11 @@ export async function listProducts({
   return res.data; // { items, page, hasMore }
 }
 
+export async function listCampuses() {
+  const res = await api.get("/api/campuses");
+  return res.data.items;
+}
+
 export async function getProduct({ slug, id } = {}) {
   if (!slug || !id) throw new Error("getProduct requires { slug, id }");
 

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { listProducts } from "../lib/api";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { listCampuses, listProducts } from "../lib/api";
 
 function cleanParams(obj) {
   const out = {};
@@ -46,6 +46,13 @@ export default function BrowseProducts() {
     enabled: !!slug,
     keepPreviousData: true,
   });
+
+  const {data: campuses, error: campusesErrors} = useQuery({
+    queryKey: ["campuses"],
+    queryFn: listCampuses,
+  })
+  if(campusesErrors) console.log(campusesErrors);
+  
 
   const items = data?.items ?? [];
   const hasMore = !!data?.hasMore;
@@ -121,19 +128,25 @@ export default function BrowseProducts() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex items-start justify-between gap-4">
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Browse Products</h1>
-          <div className="flex gap-3">
-          <p className="text-m bold text-gray-600">
-            Campus:
-          </p>
-          <select className="bg-inherit" id="slug" name="slug" onChange={(e) => onCampusChange(e)}>
-            <option value="stanford">Stanford</option>
-            <option value="ucsd">UCSD</option>
-            <option value="ucla">UCLA</option>
-          </select>
+          <h1 className="text-3xl font-bold text-gray-900">Browse Products</h1>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-sm text-gray-600">Campus:</span>
+            <select
+              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              id="slug"
+              name="slug"
+              onChange={(e) => onCampusChange(e)}
+            >
+              {campuses?.map((campus) => (
+                <option key={campus._id} value={campus.slug}>
+                  {campus.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -145,25 +158,29 @@ export default function BrowseProducts() {
       {/* Filters */}
       <form
         onSubmit={onSubmit}
-        className="mt-6 rounded-xl border bg-white p-4"
+        className="rounded-xl border bg-white p-6 shadow-sm"
       >
-        <div className="grid gap-3 md:grid-cols-4">
-          <div className="md:col-searchParamsan-2">
-            <label className="block text-sm font-medium">Search</label>
+        <div className="grid gap-4 md:grid-cols-4">
+          <div className="md:col-span-2">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Search
+            </label>
             <input
               name="q"
               defaultValue={q}
               placeholder="Search (e.g., bike, desk, hoodie)"
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium">Category</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Category
+            </label>
             <select
               name="category"
               defaultValue={category}
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             >
               <option value="">All</option>
               <option value="electronics">Electronics</option>
@@ -176,39 +193,43 @@ export default function BrowseProducts() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium">Min $</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Min $
+              </label>
               <input
                 name="min"
                 defaultValue={min}
                 inputMode="numeric"
                 placeholder="0"
-                className="mt-1 w-full rounded-lg border px-3 py-2"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Max $</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Max $
+              </label>
               <input
                 name="max"
                 defaultValue={max}
                 inputMode="numeric"
                 placeholder="500"
-                className="mt-1 w-full rounded-lg border px-3 py-2"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-3">
+        <div className="mt-5 flex flex-wrap items-center gap-3">
           <button
             type="submit"
-            className="rounded-lg border px-4 py-2 font-medium hover:bg-gray-50"
+            className="rounded-lg bg-blue-600 px-5 py-2.5 font-medium text-white transition hover:bg-blue-700"
           >
-            Apply
+            Apply Filters
           </button>
           <button
             type="button"
             onClick={onClear}
-            className="rounded-lg border px-4 py-2 hover:bg-gray-50"
+            className="rounded-lg border border-gray-300 px-5 py-2.5 font-medium text-gray-700 transition hover:bg-gray-50"
           >
             Clear
           </button>
@@ -221,61 +242,89 @@ export default function BrowseProducts() {
       </form>
 
       {/* Results */}
-      <div className="mt-6">
+      <div>
         {isLoading ? (
-          <div className="text-gray-600">Loading…</div>
+          <div className="flex h-40 items-center justify-center rounded-xl border bg-gray-50 text-gray-600">
+            Loading…
+          </div>
         ) : items.length === 0 ? (
-          <div className="rounded-xl border p-6 text-gray-600">
-            No products found.
+          <div className="rounded-xl border bg-white p-12 text-center shadow-sm">
+            <div className="text-4xl mb-3">📦</div>
+            <div className="text-gray-600">No products found.</div>
+            <p className="mt-2 text-sm text-gray-500">Try adjusting your filters or check back later.</p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {items.map((p) => (
-              <div key={p._id} className="rounded-xl border p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="font-medium">{p.title}</div>
-                  <div className="shrink-0 font-semibold">${p.price}</div>
+              <Link
+                key={p._id}
+                to={`/campuses/${slug}/products/${p._id}`}
+                className="group overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-lg"
+              >
+                <div className="relative h-48 overflow-hidden bg-gray-100">
+                  {p.image ? (
+                    <img
+                      src={p.image}
+                      alt={p.title}
+                      className="h-full w-full object-cover transition group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-4xl text-gray-300">
+                      📦
+                    </div>
+                  )}
+                  {p.category && (
+                    <span className="absolute bottom-2 left-2 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-gray-700">
+                      {p.category}
+                    </span>
+                  )}
                 </div>
-
-                {p.category && (
-                  <div className="mt-2 text-sm text-gray-600">
-                    Category: {p.category}
-                  </div>
-                )}
-
-                {p.description && (
-                  <p className="mt-3 line-clamp-3 text-sm text-gray-700">
-                    {p.description}
+                <div className="p-4">
+                  <h3 className="mb-1 font-medium text-gray-900 line-clamp-1 group-hover:text-blue-600">
+                    {p.title}
+                  </h3>
+                  <p className="mb-3 text-sm text-gray-600 line-clamp-2">
+                    {p.description || "No description provided"}
                   </p>
-                )}
-
-                <div className="mt-4 text-xs text-gray-500">
-                  ID: {p._id}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl font-bold text-blue-600">
+                      ${p.price}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {p._id.slice(-6)}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
       </div>
 
       {/* Pagination */}
-      <div className="mt-8 flex items-center justify-between">
-        <button
-          className="rounded-lg border px-4 py-2 disabled:opacity-50"
-          disabled={page <= 1 || isFetching}
-          onClick={() => updateParams({ page: page - 1 }, { resetPage: false })}
-        >
-          Prev
-        </button>
+      {items.length > 0 && (
+        <div className="flex items-center justify-center gap-4">
+          <button
+            className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 hover:border-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={page <= 1 || isFetching}
+            onClick={() => updateParams({ page: page - 1 }, { resetPage: false })}
+          >
+            ← Previous
+          </button>
 
-        <button
-          className="rounded-lg border px-4 py-2 disabled:opacity-50"
-          disabled={!hasMore || isFetching}
-          onClick={() => updateParams({ page: page + 1 }, { resetPage: false })}
-        >
-          Next
-        </button>
-      </div>
+          <span className="text-sm text-gray-600">
+            Page {page}
+          </span>
+
+          <button
+            className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 hover:border-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!hasMore || isFetching}
+            onClick={() => updateParams({ page: page + 1 }, { resetPage: false })}
+          >
+            Next →
+          </button>
+        </div>
+      )}
     </div>
   );
 }

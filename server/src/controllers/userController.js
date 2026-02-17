@@ -1,6 +1,6 @@
 import createHttpError from 'http-errors';
 
-import { generateToken, hashPassword } from '../middleware/authMiddleware.js';
+import { comparePassword, generateToken, hashPassword } from '../middleware/authMiddleware.js';
 import { userModel } from '../models/userModel.js';
 
 export async function signup(req, res, next) {
@@ -41,6 +41,6 @@ export async function login(req, res, next) {
     });
   } 
   catch (error) {
-       return next(err);
+       return next(error);
   }
 }

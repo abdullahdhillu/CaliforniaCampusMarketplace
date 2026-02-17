@@ -25,8 +25,8 @@ const productSchema = mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Active', 'Reserved', 'Sold', 'Removed'],
-    default: 'Active',
+    enum: ['active', 'reserved', 'sold', 'removed'],
+    default: 'active',
     index: true
   }
 })
