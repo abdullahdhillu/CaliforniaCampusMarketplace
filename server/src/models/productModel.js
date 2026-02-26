@@ -30,6 +30,7 @@ const productSchema = mongoose.Schema({
     index: true
   }
 })
+
 productSchema.index({campusID: 1, active: 1, createdAt: -1});
 productSchema.index({title: 'text', description: 'text'})
 

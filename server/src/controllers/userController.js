@@ -26,12 +26,13 @@ export async function signup(req, res, next) {
 
 export async function login(req, res, next) {
   try {
+    console.log(req.body);
     const {email, password} = req.body;
     const user = await userModel.findOne({email});
-    if (!user) return next(createHttpError(404, 'user not found'));
+    if (!user) return next(createHttpError(404, 'User not found'));
     
     const ok = await comparePassword(password, user.password);
-    if (!ok) return next(createHttpError(403, "invalid email or password"));
+    if (!ok) return next(createHttpError(403, "Invalid email or password"));
     
     const token = await generateToken(user._id.toString());
     return res.json({
@@ -43,4 +44,7 @@ export async function login(req, res, next) {
   catch (error) {
        return next(error);
   }
+}
+export async function logout(req, res) {
+  res.json({ message: "logged out successfully" });
 }

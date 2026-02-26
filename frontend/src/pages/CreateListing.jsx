@@ -41,7 +41,10 @@ const handleImageSelect = async (e) => {
       images: [...prev.images, ...urls],
     }));
   } catch (err) {
-    setError(err.message || "Failed to upload image(s)");
+    const msg = err?.response?.data?.error ||     // backend message
+        err?.response?.data?.message ||   // fallback if I change the shape
+        err.message;                      // axios fallback: "Request failed..."
+      setError(msg || "Failed to upload image(s)");
   } finally {
     setIsLoading(false);
     e.target.value = ""; // allow re-selecting same file

@@ -63,6 +63,9 @@ export async function deleteProduct({ slug, id } = {}) {
 
 export async function login(credentials) {
   const res = await api.post("/api/user/login", credentials);
-  localStorage.setItem("token", res.data.token);
   return res.data;
+}
+
+export function logout() {
+  localStorage.removeItem("token");
 }

@@ -1,9 +1,9 @@
-import {Router} from 'express';
+import { Router } from 'express';
 import z from 'zod';
 
-import {login, signup} from '../controllers/userController.js';
-import {authenticate} from '../middleware/authMiddleware.js';
-import {zValidate} from '../validators/zValidate.js';
+import { login, logout, signup } from '../controllers/userController.js';
+import { authenticate } from '../middleware/authMiddleware.js';
+import { zValidate } from '../validators/zValidate.js';
 
 const userSchemaEnforcer = z.object({
   email: z.string(),
@@ -16,3 +16,4 @@ export const user = Router();
 
 user.post('/signup', zValidate(userSchemaEnforcer), signup);
 user.post('/login', login);
+user.post('/logout', authenticate, logout);

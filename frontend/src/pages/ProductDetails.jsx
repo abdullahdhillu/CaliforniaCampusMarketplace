@@ -29,7 +29,8 @@ export default function ProductDetails() {
       <div className="text-gray-600">Not found.</div>
     </div>
   );
-
+  console.log(product);
+  
   return (
     <div className="space-y-6">
       {/* Back Link */}
@@ -60,6 +61,7 @@ export default function ProductDetails() {
 
           {/* Product Info */}
           <div className="p-6">
+            {/* Seller Info */}
             {/* Category Badge */}
             {product.category && (
               <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">

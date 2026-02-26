@@ -1,13 +1,17 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import { login } from "../lib/api";
 export default function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+  const {loginWithToken} = useAuth();
   const handleChange = (e) => {
-    setFormData((p) => ({...p , [e.target.name]: e.target.value}))
+    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }))
   }
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,10 +19,14 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      await login({ email: formData.email, password: formData.password });
-      navigate("/home");
+      const data = await login({ email: formData.email, password: formData.password });
+      loginWithToken(data.token)
+      navigate(from, {replace: true});
     } catch (err) {
-      setError(err.message || "Login failed. Please try again.");
+      const msg = err?.response?.data?.error ||     // backend message
+        err?.response?.data?.message ||   // fallback if I change the shape
+        err.message;                      // axios fallback: "Request failed..."
+      setError(msg);
     } finally {
       setIsLoading(false);
     }

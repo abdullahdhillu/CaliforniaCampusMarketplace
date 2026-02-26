@@ -30,8 +30,11 @@ export default function Signup() {
       // For now, just redirect
       navigate("/home");
     } catch (err) {
-      setError(err.message || "Signup failed. Please try again.");
-    } finally {
+    const msg = err?.response?.data?.error ||     // backend message
+        err?.response?.data?.message ||   // fallback if I change the shape
+        err.message;                      // axios fallback: "Request failed..."
+      setError(msg || "Signup Failed. Please Try Again.");
+  } finally {
       setIsLoading(false);
     }
   };
