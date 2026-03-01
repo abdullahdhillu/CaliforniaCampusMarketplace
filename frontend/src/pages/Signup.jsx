@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { signup } from "../lib/api";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -23,12 +24,11 @@ export default function Signup() {
 
     try {
       // Simulate signup - replace with actual signup API call
-      // const payload = { email, password, name };
-      // const res = await api.post("/api/user/signup", payload);
-      // localStorage.setItem("token", res.data.token);
-      
-      // For now, just redirect
-      navigate("/home");
+      const payload = { email, password, name };
+      const res = await signup(payload);
+      console.log(res);
+      localStorage.setItem("token", res.token);
+      navigate("/user/login");
     } catch (err) {
     const msg = err?.response?.data?.error ||     // backend message
         err?.response?.data?.message ||   // fallback if I change the shape

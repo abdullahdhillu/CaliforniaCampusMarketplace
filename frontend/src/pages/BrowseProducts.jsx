@@ -1,17 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { listCampuses, listProducts } from "../lib/api";
+import { CampusSearch } from "../components/CampusSearch";
+import useCampuses from "../hooks/useCampuses";
+import useProducts from "../hooks/useProducts";
+import { cleanParams } from "../utils/utilities";
 
-function cleanParams(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj)) {
-    if (v === undefined || v === null) continue;
-    if (typeof v === "string" && v.trim() === "") continue;
-    out[k] = v;
-  }
-  return out;
-}
 
 export default function BrowseProducts() {
   const navigate = useNavigate();
@@ -20,6 +13,7 @@ export default function BrowseProducts() {
 
   // Read current URL params
   const q = searchParams.get("q") || "";
+  const campus = searchParams.get("campus") || "";
   const category = searchParams.get("category") || "";
   const min = searchParams.get("min") || "";
   const max = searchParams.get("max") || "";
@@ -30,6 +24,7 @@ export default function BrowseProducts() {
   const queryInput = useMemo( //useMemo protects me from irrelevent renders by only rendering when any of the dependencies change
     () => ({
       slug,
+      campus: campus || undefined, // ✅ global filter
       q: q || undefined,
       category: category || undefined,
       min: min || undefined,
@@ -37,29 +32,21 @@ export default function BrowseProducts() {
       page,
       limit,
     }),
-    [slug, q, category, min, max, page]
+    [slug, q, campus, category, min, max, page]
   );
 
-  const { data, isLoading, isFetching, error } = useQuery({
-    queryKey: ["products", queryInput],
-    queryFn: () => listProducts(queryInput),
-    enabled: !!slug,
-    keepPreviousData: true,
-  });
+  const { data: products, isLoading, isFetching, error } = useProducts(queryInput)
+  const { data: campuses, error: campusesErrors } = useCampuses();
+  if (campusesErrors) console.log(campusesErrors);
 
-  const {data: campuses, error: campusesErrors} = useQuery({
-    queryKey: ["campuses"],
-    queryFn: listCampuses,
-  })
-  if(campusesErrors) console.log(campusesErrors);
-  
 
-  const items = data?.items ?? [];
-  const hasMore = !!data?.hasMore;
+  const items = products?.items ?? [];
+  const hasMore = !!products?.hasMore;
 
   function updateParams(next, options = { resetPage: true }) {
     const merged = {
       q,
+      campus,
       category,
       min,
       max,
@@ -75,18 +62,6 @@ export default function BrowseProducts() {
       Object.entries(cleaned).map(([k, v]) => [k, String(v)])
     );
     setsearchParams(asStrings);
-  }
-
-  function onCampusChange(e) {
-    const nextSlug = e.target.value;
-    const merged = {
-      q, min, max, page : 1, category
-    }
-    const cleaned = cleanParams(merged); // URL Search Params will convert the stringed object to a real querys string like q=iPhone?min=50
-    const queryString = new URLSearchParams(Object.fromEntries( // Object.fromEntries will convert [["q" , "iPhone"], ["min", "50"]] to {q : "iPhone" , min : "50"}
-      Object.entries(cleaned).map(([k, v]) => [k, String(v)]) // Object.entries will make our cleaned object in strings for e.g {min: "50"}
-    )).toString(); // all converted to string "q=iPhone?min=50"    All this is to type safety, we can also just do const qs = new URLSearchParams(cleaned).toString();
-    navigate(`/campuses/${nextSlug}/products${queryString ? `?${queryString}` : ""}`);
   }
 
   function onSubmit(e) {
@@ -111,12 +86,12 @@ export default function BrowseProducts() {
     return (
       <div className="p-6">
         <div className="text-xl font-semibold">Error loading products</div>
-        <pre className="mt-3 rounded-lg border p-3 text-sm whitesearchParamsace-pre-wrap">
+        <pre className="mt-3 rounded-lg border p-3 text-sm whitespace-pre-wrap">
           {JSON.stringify(
             {
               message: error.message,
-              status: error?.researchParamsonse?.status,
-              data: error?.researchParamsonse?.data,
+              status: error?.response?.status,
+              data: error?.response?.data,
               url: error?.config?.baseURL + error?.config?.url,
             },
             null,
@@ -134,19 +109,26 @@ export default function BrowseProducts() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Browse Products</h1>
           <div className="mt-2 flex items-center gap-2">
-            <span className="text-sm text-gray-600">Campus:</span>
-            <select
-              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              id="slug"
-              name="slug"
-              onChange={(e) => onCampusChange(e)}
-            >
-              {campuses?.map((campus) => (
-                <option key={campus._id} value={campus.slug}>
-                  {campus.name}
-                </option>
-              ))}
-            </select>
+            <label className="text-sm text-gray-600">Campus:</label>
+            {campuses?.length > 0 ? (
+              <CampusSearch
+                key={slug ?? "global"}
+                value={slug ?? campus}             // slug if campus-page, else query campus
+                campuses={campuses || []}
+                onChange={(newSlug) => {
+                  if (slug) {
+                    // campus page -> navigate to new campus page
+                    const qs = searchParams.toString();
+                    navigate(`/campuses/${newSlug}/products${qs ? `?${qs}` : ""}`);
+                  } else {
+                    // global page -> set campus filter param
+                    updateParams({ campus: newSlug || "" }, { resetPage: true });
+                  }
+                }}
+              />
+            ) : (
+              <span className="text-sm text-gray-500">Loading...</span>
+            )}
           </div>
         </div>
 
@@ -236,7 +218,7 @@ export default function BrowseProducts() {
 
           <div className="ml-auto text-sm text-gray-600">
             Page {page}
-            {data?.page ? ` (server: ${data.page})` : ""}
+            {products?.page ? ` (server: ${products.page})` : ""}
           </div>
         </div>
       </form>
@@ -258,7 +240,7 @@ export default function BrowseProducts() {
             {items.map((p) => (
               <Link
                 key={p._id}
-                to={`/campuses/${slug}/products/${p._id}`}
+                to={`/campuses/${p.campusID?.slug || slug}/products/${p._id}`}
                 className="group overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-lg"
               >
                 <div className="relative h-48 overflow-hidden bg-gray-100">

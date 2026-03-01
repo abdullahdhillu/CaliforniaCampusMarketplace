@@ -1,12 +1,13 @@
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { createProduct } from "../lib/api";
+import { CampusSearch } from "../components/CampusSearch";
+import { createProduct, listCampuses } from "../lib/api";
 import uploadToCloudinary from "../lib/cloudinary";
 export default function CreateListing() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -17,46 +18,46 @@ export default function CreateListing() {
     images: [],
   });
 
-  
-const handleImageSelect = async (e) => {
-  const files = Array.from(e.target.files || []);
-  if (files.length === 0) return;
 
-  // enforce max 5 total
-  const remaining = 5 - formData.images.length;
-  const toUpload = files.slice(0, remaining);
+  const handleImageSelect = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-  setIsLoading(true);
-  setError("");
+    // enforce max 5 total
+    const remaining = 5 - formData.images.length;
+    const toUpload = files.slice(0, remaining);
 
-  try {
-    const urls = [];
-    for (const f of toUpload) {
-      const uploadedUrl = await uploadToCloudinary(f);
-      urls.push(uploadedUrl);
-    }
+    setIsLoading(true);
+    setError("");
 
-    setFormData((prev) => ({
-      ...prev,
-      images: [...prev.images, ...urls],
-    }));
-  } catch (err) {
-    const msg = err?.response?.data?.error ||     // backend message
+    try {
+      const urls = [];
+      for (const f of toUpload) {
+        const uploadedUrl = await uploadToCloudinary(f);
+        urls.push(uploadedUrl);
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...urls],
+      }));
+    } catch (err) {
+      const msg = err?.response?.data?.error ||     // backend message
         err?.response?.data?.message ||   // fallback if I change the shape
         err.message;                      // axios fallback: "Request failed..."
       setError(msg || "Failed to upload image(s)");
-  } finally {
-    setIsLoading(false);
-    e.target.value = ""; // allow re-selecting same file
-  }
-};
+    } finally {
+      setIsLoading(false);
+      e.target.value = ""; // allow re-selecting same file
+    }
+  };
 
-const removeImage = (idx) => {
-  setFormData((prev) => ({
-    ...prev,
-    images: prev.images.filter((_, i) => i !== idx),
-  }));
-};
+  const removeImage = (idx) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== idx),
+    }));
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -67,8 +68,8 @@ const removeImage = (idx) => {
     setError("");
     setIsLoading(true);
     try {
-    const slug = formData.campus;
-    const payload = {
+      const slug = formData.campus;
+      const payload = {
         title: formData.title,
         price: formData.price,
         category: formData.category || "other",
@@ -76,8 +77,8 @@ const removeImage = (idx) => {
         description: formData.description.trim(),
         images: formData.images || [],
         status: "active"
-    }
-    await createProduct({slug, payload});
+      }
+      await createProduct({ slug, payload });
       navigate(`/campuses/${slug}/products`);
     } catch (err) {
       setError(err?.response?.data?.error || err.message || "Failed to create listing");
@@ -85,6 +86,12 @@ const removeImage = (idx) => {
       setIsLoading(false);
     }
   };
+
+  const { data: campuses, error: campusesErrors } = useQuery({
+    queryKey: ["campuses"],
+    queryFn: listCampuses,
+  })
+  if (campusesErrors) console.log(campusesErrors);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -165,20 +172,11 @@ const removeImage = (idx) => {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">Campus *</label>
-              <select
-                name="campus"
-                value={formData.campus}
-                onChange={handleChange}
-                required
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              >
-                <option value="">Select</option>
-                <option value="ucla">UCLA</option>
-                <option value="berkeley">UC Berkeley</option>
-                <option value="ucsd">UC San Diego</option>
-                <option value="uci">UC Irvine</option>
-                <option value="ucdavis">UC Davis</option>
-              </select>
+              <CampusSearch 
+                value={formData.campus} 
+                campuses={campuses || []} 
+                onChange={(slug) => setFormData(prev => ({ ...prev, campus: slug }))}
+              />
             </div>
           </div>
 
@@ -195,45 +193,45 @@ const removeImage = (idx) => {
             />
           </div>
 
-<div>
-  <label className="mb-1 block text-sm font-medium text-gray-700">
-    Images (up to 5)
-  </label>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Images (up to 5)
+            </label>
 
-  <input
-    type="file"
-    accept="image/*"
-    multiple
-    onChange={handleImageSelect}
-    disabled={isLoading || formData.images.length >= 5}
-    className="w-full rounded-lg border border-gray-300 px-4 py-2.5"
-  />
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageSelect}
+              disabled={isLoading || formData.images.length >= 5}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5"
+            />
 
-  <p className="mt-2 text-xs text-gray-500">
-    Uploads images and saves their URLs.
-  </p>
+            <p className="mt-2 text-xs text-gray-500">
+              Uploads images and saves their URLs.
+            </p>
 
-  {formData.images.length > 0 && (
-    <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-5">
-      {formData.images.map((url, idx) => (
-        <div key={url} className="relative">
-          <img
-            src={url}
-            alt={`Upload ${idx + 1}`}
-            className="h-20 w-20 rounded-lg object-cover border"
-          />
-          <button
-            type="button"
-            onClick={() => removeImage(idx)}
-            className="absolute -right-2 -top-2 rounded-full bg-white border px-2 py-0.5 text-xs"
-          >
-            ✕
-          </button>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
+            {formData.images.length > 0 && (
+              <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-5">
+                {formData.images.map((url, idx) => (
+                  <div key={url} className="relative">
+                    <img
+                      src={url}
+                      alt={`Upload ${idx + 1}`}
+                      className="h-20 w-20 rounded-lg object-cover border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(idx)}
+                      className="absolute -right-2 -top-2 rounded-full bg-white border px-2 py-0.5 text-xs"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
 
           <div className="flex gap-3 pt-2">

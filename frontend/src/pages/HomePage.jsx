@@ -1,54 +1,73 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-
+import HomeSearchBar from '../components/HomeSearchBar';
 const campuses = [
-  // UC System
-  { name: "UCLA", slug: "ucla" },
-  { name: "UC Berkeley", slug: "berkeley" },
-  { name: "UC San Diego", slug: "ucsd" },
-  { name: "UC Irvine", slug: "uci" },
-  { name: "UC Davis", slug: "ucdavis" },
-  { name: "UC Santa Barbara", slug: "ucsb" },
-  { name: "UC Riverside", slug: "ucr" },
-  { name: "UC Santa Cruz", slug: "ucsc" },
-  { name: "UC Merced", slug: "ucmerced" },
-  { name: "UC San Francisco", slug: "ucsf" },
-  // CSU System
-  { name: "San Diego State", slug: "sdsu" },
-  { name: "San Jose State", slug: "sjsu" },
-  { name: "Cal Poly SLO", slug: "calpoly-slo" },
-  { name: "Cal State LA", slug: "csula" },
-  { name: "Cal State Long Beach", slug: "csulb" },
-  { name: "Cal State Fullerton", slug: "csuf" },
-  { name: "Cal State Northridge", slug: "csun" },
-  { name: "Cal State Sacramento", slug: "csus" },
-  { name: "Cal State Fresno", slug: "csufresno" },
-  { name: "Cal State San Bernardino", slug: "csusb" },
-  { name: "Cal State East Bay", slug: "csueb" },
-  { name: "Cal State Dominguez Hills", slug: "csudh" },
-  { name: "Cal State San Marcos", slug: "csusm" },
-  { name: "Cal State Chico", slug: "csuchico" },
-  { name: "Cal State Bakersfield", slug: "csub" },
-  { name: "Cal State Stanislaus", slug: "csustan" },
-  { name: "Cal State Monterey Bay", slug: "csumb" },
-  { name: "Cal State Channel Islands", slug: "csuci" },
-  { name: "Cal State Pomona", slug: "csupomona" },
-  { name: "Cal State San Luis Obispo", slug: "calpoly" },
-  // Private Universities
-  { name: "Stanford", slug: "stanford" },
-  { name: "USC", slug: "usc" },
-  { name: "Santa Clara", slug: "santaclara" },
-  { name: "Loyola Marymount", slug: "lmu" },
-  { name: "University of San Diego", slug: "usd" },
-  { name: "University of San Francisco", slug: "usfca" },
-  { name: "Azusa Pacific", slug: "apu" },
-  { name: "Chapman", slug: "chapman" },
-  { name: "Claremont McKenna", slug: "cmc" },
-  { name: "Harvey Mudd", slug: "hmc" },
-  { name: "Pitzer", slug: "pitzer" },
-  { name: "Scripps College", slug: "scripps" },
-  { name: "Art Center", slug: "artcenter" },
-  { name: "CalArts", slug: "calarts" },
+  // ========== UC SYSTEM (10 campuses) ==========
+  {name: 'UC Berkeley', slug: 'uc-berkeley', type: 'university', city: 'Berkeley'},
+  {name: 'UCLA', slug: 'ucla', type: 'university', city: 'Los Angeles'},
+  {name: 'UC San Diego', slug: 'ucsd', type: 'university', city: 'San Diego'},
+  {name: 'UC Davis', slug: 'uc-davis', type: 'university', city: 'Davis'},
+  {name: 'UC Irvine', slug: 'uc-irvine', type: 'university', city: 'Irvine'},
+  {name: 'UC Santa Barbara', slug: 'uc-santa-barbara', type: 'university', city: 'Santa Barbara'},
+  {name: 'UC Santa Cruz', slug: 'uc-santa-cruz', type: 'university', city: 'Santa Cruz'},
+  {name: 'UC Riverside', slug: 'uc-riverside', type: 'university', city: 'Riverside'},
+  {name: 'UC Merced', slug: 'uc-merced', type: 'university', city: 'Merced'},
+  {name: 'UC San Francisco', slug: 'ucsf', type: 'university', city: 'San Francisco'},
+  
+  // ========== CSU SYSTEM (23 campuses) ==========
+  {name: 'California Polytechnic State University, San Luis Obispo', slug: 'cal-poly-slo', type: 'university', city: 'San Luis Obispo'},
+  {name: 'California State Polytechnic University, Humboldt', slug: 'cal-poly-humboldt', type: 'university', city: 'Arcata'},
+  {name: 'California State Polytechnic University, Pomona', slug: 'cal-poly-pomona', type: 'university', city: 'Pomona'},
+  {name: 'San Diego State University', slug: 'sdsu', type: 'university', city: 'San Diego'},
+  {name: 'San Francisco State University', slug: 'sfsu', type: 'university', city: 'San Francisco'},
+  {name: 'San José State University', slug: 'sjsu', type: 'university', city: 'San Jose'},
+  {name: 'California State University, Bakersfield', slug: 'csu-bakersfield', type: 'university', city: 'Bakersfield'},
+  {name: 'California State University Channel Islands', slug: 'csu-channel-islands', type: 'university', city: 'Camarillo'},
+  {name: 'California State University, Chico', slug: 'csu-chico', type: 'university', city: 'Chico'},
+  {name: 'California State University, Dominguez Hills', slug: 'csudh', type: 'university', city: 'Carson'},
+  {name: 'California State University, East Bay', slug: 'csueb', type: 'university', city: 'Hayward'},
+  {name: 'California State University, Fresno', slug: 'fresno-state', type: 'university', city: 'Fresno'},
+  {name: 'California State University, Fullerton', slug: 'csuf', type: 'university', city: 'Fullerton'},
+  {name: 'California State University, Long Beach', slug: 'csulb', type: 'university', city: 'Long Beach'},
+  {name: 'California State University, Los Angeles', slug: 'csula', type: 'university', city: 'Los Angeles'},
+  {name: 'California State University, Monterey Bay', slug: 'csumb', type: 'university', city: 'Seaside'},
+  {name: 'California State University, Northridge', slug: 'csun', type: 'university', city: 'Northridge'},
+  {name: 'California State University, Sacramento', slug: 'sac-state', type: 'university', city: 'Sacramento'},
+  {name: 'California State University, San Bernardino', slug: 'csusb', type: 'university', city: 'San Bernardino'},
+  {name: 'California State University San Marcos', slug: 'csusm', type: 'university', city: 'San Marcos'},
+  {name: 'Sonoma State University', slug: 'sonoma-state', type: 'university', city: 'Rohnert Park'},
+  {name: 'California State University, Stanislaus', slug: 'stan-state', type: 'university', city: 'Turlock'},
+  {name: 'Cal Maritime', slug: 'cal-maritime', type: 'university', city: 'Vallejo'},
+  
+  // ========== PRIVATE PRESTIGIOUS UNIVERSITIES ==========
+  {name: 'Stanford University', slug: 'stanford', type: 'university', city: 'Stanford'},
+  {name: 'California Institute of Technology', slug: 'caltech', type: 'university', city: 'Pasadena'},
+  {name: 'University of Southern California', slug: 'usc', type: 'university', city: 'Los Angeles'},
+  {name: 'Pepperdine University', slug: 'pepperdine', type: 'university', city: 'Malibu'},
+  {name: 'Santa Clara University', slug: 'santa-clara', type: 'university', city: 'Santa Clara'},
+  {name: 'Loyola Marymount University', slug: 'lmu', type: 'university', city: 'Los Angeles'},
+  {name: 'University of San Diego', slug: 'san-diego', type: 'university', city: 'San Diego'},
+  {name: 'Chapman University', slug: 'chapman', type: 'university', city: 'Orange'},
+  
+  // ========== THE CLAREMONT COLLEGES ==========
+  {name: 'Pomona College', slug: 'pomona', type: 'university', city: 'Claremont'},
+  {name: 'Claremont McKenna College', slug: 'claremont-mckenna', type: 'university', city: 'Claremont'},
+  {name: 'Harvey Mudd College', slug: 'harvey-mudd', type: 'university', city: 'Claremont'},
+  {name: 'Pitzer College', slug: 'pitzer', type: 'university', city: 'Claremont'},
+  {name: 'Scripps College', slug: 'scripps', type: 'university', city: 'Claremont'},
+  
+  // ========== OTHER PRESTIGIOUS PRIVATE INSTITUTIONS ==========
+  {name: 'Occidental College', slug: 'oxy', type: 'university', city: 'Los Angeles'},
+  {name: 'University of San Francisco', slug: 'usfca', type: 'university', city: 'San Francisco'},
+  {name: 'Mills College at Northeastern University', slug: 'mills', type: 'university', city: 'Oakland'},
+  {name: 'National University', slug: 'national-university', type: 'university', city: 'La Jolla'},
+  
+  // ========== HIGH SCHOOLS ==========
+  {
+    name: 'Lincoln High School (SF)',
+    slug: 'lincoln-high-sf',
+    type: 'high_school',
+    city: 'San Francisco'
+  },
 ];
 
 const categories = [
@@ -92,7 +111,7 @@ const featuredProducts = [
 ];
 
 export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState("");
+  // const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <div className="space-y-12">
@@ -108,21 +127,7 @@ export default function HomePage() {
           </p>
           
           {/* Search Bar */}
-          <div className="mx-auto flex max-w-xl overflow-hidden rounded-lg bg-white shadow-lg">
-            <input
-              type="text"
-              placeholder="Search for products..."
-              className="flex-1 px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Link
-              to={`/campuses/ucla/products?search=${searchQuery}`}
-              className="bg-indigo-600 px-6 py-3 font-medium text-white transition hover:bg-indigo-700"
-            >
-              Search
-            </Link>
-          </div>
+          <HomeSearchBar />
           
           {/* Quick Sell Button */}
           <div className="mt-6 flex justify-center gap-4">

@@ -8,7 +8,6 @@ import { zValidate } from '../validators/zValidate.js';
 const userSchemaEnforcer = z.object({
   email: z.string(),
   password: z.string(),
-  age: z.number().min(12),
   name: z.string(),
   avatar: z.string().optional()
 })

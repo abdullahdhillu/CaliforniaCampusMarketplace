@@ -20,21 +20,21 @@ export default function ProductDetails() {
       <div className="text-red-600">Error loading product.</div>
     </div>
   );
-  
+
   // Your backend might return { product: [...] } or { product: {...} }
   const product = data?.product;
+  console.log(product);
 
   if (!product) return (
     <div className="rounded-xl border bg-white p-6 text-center">
       <div className="text-gray-600">Not found.</div>
     </div>
   );
-  console.log(product);
-  
+
   return (
     <div className="space-y-6">
       {/* Back Link */}
-      <Link 
+      <Link
         className="inline-flex items-center gap-1 text-sm text-gray-600 transition hover:text-blue-600"
         to={`/campuses/${slug}/products`}
       >
@@ -62,6 +62,28 @@ export default function ProductDetails() {
           {/* Product Info */}
           <div className="p-6">
             {/* Seller Info */}
+            {product.sellerName && (
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 overflow-hidden">
+                  {product.sellerAvatar ? (
+                    <img
+                      src={product.sellerAvatar}
+                      alt={product.sellerName}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <svg className="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="8" r="4" />
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    </svg>
+                  )}
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Seller</p>
+                  <p className="font-medium text-gray-900">{product.sellerName}</p>
+                </div>
+              </div>
+            )}
             {/* Category Badge */}
             {product.category && (
               <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
@@ -93,7 +115,7 @@ export default function ProductDetails() {
             {product.campus && (
               <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
                 <span className="font-medium">Campus:</span>
-                <Link 
+                <Link
                   to={`/campuses/${slug}/products`}
                   className="text-blue-600 hover:underline"
                 >

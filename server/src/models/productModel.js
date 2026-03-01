@@ -12,6 +12,8 @@ const productSchema = mongoose.Schema({
     index: true,
     required: true
   },
+  sellerName: String,
+  sellerAvatar: {type: String},
   title: {type: String, required: true},
   price: {type: Number, min: 0, required: true},
   description: {type: String},
@@ -31,7 +33,7 @@ const productSchema = mongoose.Schema({
   }
 })
 
-productSchema.index({campusID: 1, active: 1, createdAt: -1});
+productSchema.index({campusID: 1, status: 1, createdAt: -1});
 productSchema.index({title: 'text', description: 'text'})
 
 export const productModel = mongoose.model('Product', productSchema)

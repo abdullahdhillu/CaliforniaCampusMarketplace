@@ -5,7 +5,8 @@ import { userModel } from '../models/userModel.js';
 
 export async function signup(req, res, next) {
   try {
-    const {email, password} = req.body;
+    const {email, password, name} = req.body;
+    console.log(email, password, name);
     const existingUser = await userModel.findOne({email});
     if (existingUser) return next(createHttpError(400, 'user already exists'));
       const user = await userModel.create({

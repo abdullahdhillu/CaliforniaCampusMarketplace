@@ -14,6 +14,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<Navigate to="/home" replace />}/>
         <Route path="/home" element={<HomePage/>}/>
+        <Route path="/products" element={<BrowseProducts />} />
         <Route path="/campuses/:slug/products" element={<BrowseProducts />} />
         <Route path="/campuses/:slug/products/:id" element={<ProductDetails />} />
         <Route path="/products/upload" element={<RequireAuth>
